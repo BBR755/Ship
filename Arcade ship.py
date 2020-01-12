@@ -103,7 +103,6 @@ class Weapon(pygame.sprite.Sprite):
         self.rect = self.rect.move(self.vx, self.vy)
 
 
-
 glavniy_weapon_group = pygame.sprite.Group()
 back_group = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
