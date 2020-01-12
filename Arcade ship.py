@@ -88,6 +88,23 @@ class Ship(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(x_1, y_1)
 
 
+class Weapon(pygame.sprite.Sprite):
+    def __init__(self, x, y, wein, high):
+        super().__init__(glavniy_weapon_group)
+        self.wein = wein
+        self.high = high
+        self.image = pygame.Surface((wein, high), pygame.SRCALPHA, 32)
+        pygame.draw.rect(self.image, pygame.Color("green"), (x, y), (wein, high))
+        self.rect = pygame.rect(x, y, wein, high)
+        self.vx = 0
+        self.vy = -300
+
+    def update(self):
+        self.rect = self.rect.move(self.vx, self.vy)
+
+
+
+glavniy_weapon_group = pygame.sprite.Group()
 back_group = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
@@ -128,6 +145,10 @@ while running:
     y_pos += v_y / FPS
     player_group.update(x_pos, y_pos)
     player_group.draw(screen)
+    if key[pygame.K_SPACE]:
+        Weapon(x_pos, y_pos, 5, 10)
+    glavniy_weapon_group.update(screen)
+    glavniy_weapon_group.draw(screen)
     pygame.display.flip()
     clock.tick(FPS)
     #clock.tick(1000)
