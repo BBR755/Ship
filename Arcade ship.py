@@ -3,7 +3,7 @@ import os
 import sys
 
 pygame.init()
-size = width, height = 1280, 600
+size = width, height = 1024, 768
 screen = pygame.display.set_mode(size)
 screen.fill((50, 80, 255))
 clock = pygame.time.Clock()
@@ -63,6 +63,16 @@ def start_screen():
         pygame.display.flip()
         clock.tick(FPS)
 
+class Background(pygame.sprite.Sprite):
+    fon = pygame.transform.scale(load_image('space.jpg'), (width, height))
+
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = Background.fon
+        self.rect = self.image.get_rect()
+        self.rect.x = 0
+        self.rect.y = 0
+
 
 class Ship(pygame.sprite.Sprite):
     image = load_image("ship_3.png", -1)
@@ -78,9 +88,11 @@ class Ship(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(x_1, y_1)
 
 
+back_group = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 ship = Ship(player_group)
+back = Background(back_group)
 start_screen()
 l = 0
 running = True
@@ -90,7 +102,7 @@ while running:
             running = False
 
     key = pygame.key.get_pressed()
-    screen.fill(pygame.Color(0, 0, 0))
+    back_group.draw(screen)
     if key[pygame.K_LEFT]:
         v_x = -speed
     if key[pygame.K_RIGHT]:
@@ -107,10 +119,10 @@ while running:
             if v_x == speed:
                 v_x = 0
         if not key[pygame.K_UP]:
-            if v_x == -speed:
+            if v_y == -speed:
                 v_y = 0
         if not key[pygame.K_DOWN]:
-            if v_x == speed:
+            if v_y == speed:
                 v_y = 0
     x_pos += v_x / FPS
     y_pos += v_y / FPS
