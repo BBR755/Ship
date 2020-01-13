@@ -39,7 +39,7 @@ def start_screen():
                   "У игрока под контролем есть космический корабль, который управляется стрелками мыши",
                   "Цель игры:"
                   "Набраться как можно больше очков."
-                  "Нажмите 'SPACE', чтобы продолжить."]
+                  "Нажмите 'F', чтобы продолжить."]
 
     fon = pygame.transform.scale(load_image('space.jpg'), (width, height))
     screen.blit(fon, (0, 0))
@@ -56,9 +56,10 @@ def start_screen():
 
     while True:
         for event in pygame.event.get():
+            key = pygame.key.get_pressed()
             if event.type == pygame.QUIT:
                 terminate()
-            elif event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN and key[pygame.K_f]:
                 return  # начинаем игру
         pygame.display.flip()
         clock.tick(FPS)
@@ -89,18 +90,20 @@ class Ship(pygame.sprite.Sprite):
 
 
 class Weapon(pygame.sprite.Sprite):
-    def __init__(self, x, y, wein, high):
+    print('-------------')
+    image = load_image("lazer.png", -1)
+    print(00000)
+    def __init__(self, glavniy_weapon_group):
+        print(111111111111)
         super().__init__(glavniy_weapon_group)
-        self.wein = wein
-        self.high = high
-        self.image = pygame.Surface((wein, high), pygame.SRCALPHA, 32)
-        pygame.draw.rect(self.image, pygame.Color("green"), (x, y), (wein, high))
-        self.rect = pygame.rect(x, y, wein, high)
-        self.vx = 0
-        self.vy = -300
+        self.image = Ship.image
+        self.rect = self.image.get_rect()
+        self.rect.x = x_pos + 45
+        self.rect.y = y_pos
 
-    def update(self):
-        self.rect = self.rect.move(self.vx, self.vy)
+    def update_2(self, xx, yy):
+        print(45454)
+        self.rect_1 = self.rect.move(xx, yy)
 
 
 glavniy_weapon_group = pygame.sprite.Group()
@@ -109,11 +112,13 @@ all_sprites = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 ship = Ship(player_group)
 back = Background(back_group)
+green = Weapon(glavniy_weapon_group)
 start_screen()
-l = 0
 running = True
 while running:
     for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            glavniy_weapon_group.update_2(0, -150)
         if event.type == pygame.QUIT:
             running = False
 
@@ -144,9 +149,6 @@ while running:
     y_pos += v_y / FPS
     player_group.update(x_pos, y_pos)
     player_group.draw(screen)
-    if key[pygame.K_SPACE]:
-        Weapon(x_pos, y_pos, 5, 10)
-    glavniy_weapon_group.update(screen)
     glavniy_weapon_group.draw(screen)
     pygame.display.flip()
     clock.tick(FPS)
