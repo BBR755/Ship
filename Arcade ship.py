@@ -90,13 +90,12 @@ class Ship(pygame.sprite.Sprite):
 
 
 class Weapon(pygame.sprite.Sprite):
-    print('-------------')
     image = load_image("lazer.png", -1)
-    print(00000)
+
+
     def __init__(self, glavniy_weapon_group):
-        print(111111111111)
         super().__init__(glavniy_weapon_group)
-        self.image = Ship.image
+        self.image = Weapon.image
         self.rect = self.image.get_rect()
         self.rect.x = x_pos + 45
         self.rect.y = y_pos
@@ -118,7 +117,7 @@ running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            glavniy_weapon_group.update_2(0, -150)
+            Weapon()
         if event.type == pygame.QUIT:
             running = False
 
@@ -148,6 +147,7 @@ while running:
     x_pos += v_x / FPS
     y_pos += v_y / FPS
     player_group.update(x_pos, y_pos)
+    glavniy_weapon_group.update(0, -150)
     player_group.draw(screen)
     glavniy_weapon_group.draw(screen)
     pygame.display.flip()
