@@ -159,6 +159,7 @@ enemy_group = pygame.sprite.Group()
 ship = Ship(player_group)
 back = Background(back_group)
 
+
 Border(-300, -300, width + 300, -300)
 Border(-300, height + 300, width + 300, height + 300)
 Border(-300, -300, -300, height + 300)
