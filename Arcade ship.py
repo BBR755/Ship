@@ -172,6 +172,7 @@ class Enemy_left(pygame.sprite.Sprite):
             self.rect.move_ip(x, 1)
 
 
+
 vertical_borders = pygame.sprite.Group()
 horizontal_borders = pygame.sprite.Group()
 glavniy_weapon_group = pygame.sprite.Group()
