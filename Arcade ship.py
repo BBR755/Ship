@@ -16,6 +16,9 @@ x_pos = width//2
 y_pos = height//2
 v_x = 0
 v_y = 0
+a = -0.001307932583525568
+b = 1.3393229655301817
+c = 41.133320824273454
 speed = 200
 total = 0
 choos = 0
@@ -146,34 +149,36 @@ class Border(pygame.sprite.Sprite):
             self.rect = pygame.Rect(x1, y1, x2 - x1, 1)
 
 
-class Enemy(pygame.sprite.Sprite):
+class Enemy_left(pygame.sprite.Sprite):
     image = load_image("standart_unit_2.png", -1)
 
-    def __init__(self, enemy_group):
-        super().__init__(enemy_group)
-        self.image = Enemy.image
+    def __init__(self, enemy_left_group):
+        super().__init__(enemy_left_group)
+        self.image = Enemy_left.image
         self.rect = self.image.get_rect()
         self.rect.x = coords_x
         self.rect.y = coords_y
         self.hp = 1
-        self.speed_en_x = 5
-        self.speed_en_y = 0
-        list_coords.append(coords_x, coords_y)
 
     def update(self):
-        for j in range(len(enemy_group)):
-            x, y = list_coords[j]
-            if x < 0:
-                self.rect = self.rect.move(2**0.5, 2)
-            elif x > 0:
-                self.rect = self.rect.move(2 ** 0.5, 2)
+        y = self.rect[1]
+        print(y)
+        d = b**2 - 4 * a * (c - y - 1)
+        x1 = (-b - d**0.5)/2/a
+        x2 = (-b + d ** 0.5) / 2 / a
+        if d >= 0:
+            x = min(x2, x1)
+            print(x, y)
+            self.rect.move_ip(x, 1)
+
+
 vertical_borders = pygame.sprite.Group()
 horizontal_borders = pygame.sprite.Group()
 glavniy_weapon_group = pygame.sprite.Group()
 back_group = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
-enemy_group = pygame.sprite.Group()
+enemy_left_group = pygame.sprite.Group()
 ship = Ship(player_group)
 back = Background(back_group)
 
@@ -187,22 +192,17 @@ start_screen()
 
 running = True
 while running:
-    if enemy_group.sprites() == []:
+
+    if enemy_left_group.sprites() == []:
         choos = random.randint(0, 2)
         if choos != repeat:
             repeat = choos
             if choos == 1:
-                for i in range(20):
-                    if temp % 2 == 0:
-                        coords_x = -90
-                        coords_y = -90 + -90 * temp//2
-                        enemy = Enemy(enemy_group)
-                        temp += 1
-                    else:
-                        coords_x = width + 90
-                        coords_y = -45 + -90 * temp//2
-                        enemy = Enemy(enemy_group)
-                        temp += 1
+                for i in range(10):
+                    coords_x = -90
+                    coords_y = -90 + -90 * temp//2
+                    enemy = Enemy_left(enemy_left_group)
+                    temp += 1
 
     if total % 25 != 0:
         total += 1
@@ -291,10 +291,11 @@ while running:
         colding += 1
     x_pos += v_x / FPS
     y_pos += v_y / FPS
+    if enemy_left_group.sprites() != [] and choos == 1:
+        enemy_left_group.update()
     player_group.update(x_pos, y_pos)
-    enemy_group.update()
     glavniy_weapon_group.update()
-    enemy_group.draw(screen)
+    enemy_left_group.draw(screen)
     vertical_borders.draw(screen)
     horizontal_borders.draw(screen)
     player_group.draw(screen)
