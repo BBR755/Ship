@@ -162,14 +162,20 @@ class Enemy_left(pygame.sprite.Sprite):
 
     def update(self):
         y = self.rect[1]
+        global choos
+
         print(y)
         d = b**2 - 4 * a * (c - y - 1)
         x1 = (-b - d**0.5)/2/a
         x2 = (-b + d ** 0.5) / 2 / a
-        if d >= 0:
+        if choos != -1:
             x = min(x2, x1)
             print(x, y)
-            self.rect.move_ip(x, 1)
+            self.rect = self.rect.move(x - self.rect[0], 1)
+        if self.rect[0] > 400:
+            choos = -1
+
+
 
 
 
@@ -199,7 +205,7 @@ while running:
         if choos != repeat:
             repeat = choos
             if choos == 1:
-                for i in range(10):
+                for i in range(5):
                     coords_x = -90
                     coords_y = -90 + -90 * temp//2
                     enemy = Enemy_left(enemy_left_group)
