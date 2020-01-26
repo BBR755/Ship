@@ -154,6 +154,7 @@ class Border(pygame.sprite.Sprite):
 
 class Enemy_left(pygame.sprite.Sprite):
     image = load_image("standart_unit_2.png", -1)
+    image = pygame.transform.rotate(image, 180)
 
     def __init__(self, enemy_left_group):
         super().__init__(enemy_left_group)
@@ -176,12 +177,9 @@ class Enemy_left(pygame.sprite.Sprite):
         if self.rect[0] > 400:
             choos = -1
 
-        x_enemy = self.rect[0]
-        y_enemy = self.rect[1]
-
 
 class Enemy_Weapon(pygame.sprite.Sprite):
-    image = load_image("Enemy_lazer.png", -1)
+    image = load_image("Enemy_lazer_type3.png", -1)
     image = pygame.transform.rotate(image, 90)
 
 
@@ -330,15 +328,18 @@ while running:
     if enemy_left_group.sprites() != [] and choos == 1:
         enemy_left_group.update()
     if enemy_left_group.sprites() != [] and reload_2_red % 25 == 0:
-        red = Enemy_Weapon(enemy_weapon_group)
-        u = 1024 // 100
-        x_s = x_pos - x_enemy - 30
-        y_s = y_pos - y_enemy - 30
-        s = (x_s ** 2 + y_s ** 2) ** 0.5
-        time = s / u
-        u_x = x_s / time
-        y_u = y_s / time
-        enemy_weapon_group.update()
+        for sprit in range(len(enemy_left_group.sprites())):
+            x_enemy = enemy_left_group.sprites()[sprit].rect[0]
+            y_enemy = enemy_left_group.sprites()[sprit].rect[1]
+            red = Enemy_Weapon(enemy_weapon_group)
+            u = 1024 // 100
+            x_s = x_pos - x_enemy - 30
+            y_s = y_pos - y_enemy - 30
+            s = (x_s ** 2 + y_s ** 2) ** 0.5
+            time = s / u
+            u_x = x_s / time
+            y_u = y_s / time
+            enemy_weapon_group.update()
         reload_2_red = 1
     reload_2_red += 1
     player_group.update(x_pos, y_pos)
