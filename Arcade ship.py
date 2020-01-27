@@ -8,7 +8,9 @@ size = width, height = 1024, 768
 screen = pygame.display.set_mode(size)
 screen.fill((50, 80, 255))
 clock = pygame.time.Clock()
-list_coords = []
+list_coords_x = []
+list_coords_y = []
+list_delete = []
 FPS = 60
 run_x = False
 run_y = False
@@ -20,6 +22,7 @@ a = -0.001307932583525568
 b = 1.3393229655301817
 c = 41.133320824273454
 speed = 200
+number_of_enemy_sprite_coords = 0
 reload_1_green = 0
 reload_2_red = 0
 choos = 0
@@ -164,6 +167,7 @@ class Enemy_left(pygame.sprite.Sprite):
         self.rect.y = coords_y
         self.hp = 1
 
+
     def update(self):
         y = self.rect[1]
         global choos, x_enemy, y_enemy
@@ -184,7 +188,6 @@ class Enemy_Weapon(pygame.sprite.Sprite):
 
 
     def __init__(self, enemy_left_group):
-        print(0)
         super().__init__(enemy_left_group)
         self.image = Enemy_Weapon.image
         self.rect = self.image.get_rect()
@@ -192,18 +195,20 @@ class Enemy_Weapon(pygame.sprite.Sprite):
         self.rect.y = y_enemy + 30
 
     def update(self):
-        #u = 1024 // 100
-        #x_s = x_pos - x_enemy - 30
-        #y_s = y_pos - y_enemy - 30
-        #s = (x_s ** 2 + y_s ** 2) ** 0.5
-        #time = s / u
-        #u_x = x_s / time
-        #y_u = y_s / time
-        self.rect.move_ip(u_x, y_u)
-        #if pygame.sprite.spritecollideany(self, horizontal_borders):
-         #   pygame.sprite.spritecollide(self, enemy_left_group, True)
+        global number_of_enemy_sprite_coords
+        number_of_enemy_sprite_coords += 1
+        self.rect = self.rect.move(list_coords_x[number_of_enemy_sprite_coords-1], list_coords_y[number_of_enemy_sprite_coords-1])
+        if pygame.sprite.spritecollideany(self, horizontal_borders):
+             pygame.sprite.spritecollide(self, enemy_weapon_group, True)
+             del list_coords_x[number_of_enemy_sprite_coords - 1]
+             del list_coords_y[number_of_enemy_sprite_coords - 1]
+             number_of_enemy_sprite_coords -= 1
 
-
+        if pygame.sprite.spritecollideany(self, vertical_borders):
+            pygame.sprite.spritecollide(self, enemy_weapon_group, True)
+            del list_coords_y[number_of_enemy_sprite_coords - 1]
+            del list_coords_x[number_of_enemy_sprite_coords - 1]
+            number_of_enemy_sprite_coords -= 1
 
 vertical_borders = pygame.sprite.Group()
 horizontal_borders = pygame.sprite.Group()
@@ -327,7 +332,7 @@ while running:
     y_pos += v_y / FPS
     if enemy_left_group.sprites() != [] and choos == 1:
         enemy_left_group.update()
-    if enemy_left_group.sprites() != [] and reload_2_red % 25 == 0:
+    if enemy_left_group.sprites() != [] and reload_2_red % 250 == 0:
         for sprit in range(len(enemy_left_group.sprites())):
             x_enemy = enemy_left_group.sprites()[sprit].rect[0]
             y_enemy = enemy_left_group.sprites()[sprit].rect[1]
@@ -338,9 +343,14 @@ while running:
             s = (x_s ** 2 + y_s ** 2) ** 0.5
             time = s / u
             u_x = x_s / time
-            y_u = y_s / time
-            enemy_weapon_group.update()
+            u_y = y_s / time
+            list_coords_x.append(u_x)
+            list_coords_y.append(u_y)
         reload_2_red = 1
+    if reload_2_red % 5 == 0 and list_coords_x != 0 and list_coords_y != 0:
+        enemy_weapon_group.update()
+        number_of_enemy_sprite_coords = 0
+
     reload_2_red += 1
     player_group.update(x_pos, y_pos)
     glavniy_weapon_group.update()
@@ -355,4 +365,3 @@ while running:
     #clock.tick(1000)
 
 terminate()
-
