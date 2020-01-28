@@ -11,6 +11,7 @@ clock = pygame.time.Clock()
 list_coords_x = []
 list_coords_y = []
 list_delete = []
+list_time_of_delete = []
 FPS = 60
 run_x = False
 run_y = False
@@ -22,9 +23,12 @@ a = -0.001307932583525568
 b = 1.3393229655301817
 c = 41.133320824273454
 speed = 200
+trigger_death = 0
 number_of_enemy_sprite_coords = 0
 reload_1_green = 0
 reload_2_red = 0
+x_lazer_delete = 0
+y_lazer_dalete = 0
 choos = 0
 repeat = -1
 colding = 5
@@ -128,17 +132,24 @@ class Weapon(pygame.sprite.Sprite):
         self.image = Weapon.image
         self.rect = self.image.get_rect()
         self.rect.x = x_pos + 30
-        self.rect.y = y_pos
-        #xx = self.rect.x
-        #yy = self.rect.y
+        self.rect.y = y_pos + 100
 
     def update(self):
+        global trigger_death, boom, x_lazer_delete, y_lazer_dalete
         self.rect = self.rect.move(0, -10)
         if pygame.sprite.spritecollideany(self, horizontal_borders):
             pygame.sprite.spritecollide(self, glavniy_weapon_group, True)
 
         if pygame.sprite.spritecollideany(self, vertical_borders):
             pygame.sprite.spritecollide(self, glavniy_weapon_group, True)
+
+        if pygame.sprite.spritecollideany(self, enemy_left_group):
+            pygame.sprite.spritecollide(self, glavniy_weapon_group, True)
+            pygame.sprite.spritecollide(self, enemy_left_group, True)
+            x_lazer_delete = self.rect[0]
+            y_lazer_dalete = self.rect[1]
+            trigger_death = 2
+            boom = Destroy(boom_group)
 
 
 class Border(pygame.sprite.Sprite):
@@ -192,10 +203,10 @@ class Enemy_Weapon(pygame.sprite.Sprite):
         self.image = Enemy_Weapon.image
         self.rect = self.image.get_rect()
         self.rect.x = x_enemy + 30
-        self.rect.y = y_enemy + 30
+        self.rect.y = y_enemy
 
     def update(self):
-        global number_of_enemy_sprite_coords
+        global number_of_enemy_sprite_coords, trigger_death, boom
         number_of_enemy_sprite_coords += 1
         self.rect = self.rect.move(list_coords_x[number_of_enemy_sprite_coords-1], list_coords_y[number_of_enemy_sprite_coords-1])
         if pygame.sprite.spritecollideany(self, horizontal_borders):
@@ -210,6 +221,39 @@ class Enemy_Weapon(pygame.sprite.Sprite):
             del list_coords_x[number_of_enemy_sprite_coords - 1]
             number_of_enemy_sprite_coords -= 1
 
+        if pygame.sprite.spritecollideany(self, player_group):
+            pygame.sprite.spritecollide(self, enemy_weapon_group, True)
+            pygame.sprite.spritecollide(self, player_group, True)
+            trigger_death = 1
+            boom = Destroy(boom_group)
+            del list_coords_x[number_of_enemy_sprite_coords - 1]
+            del list_coords_y[number_of_enemy_sprite_coords - 1]
+            number_of_enemy_sprite_coords -= 1
+
+class Destroy(pygame.sprite.Sprite):
+    image = load_image("Boom_2.png", -1)
+
+    def __init__(self, boom_group):
+        global trigger_death
+        super().__init__(boom_group)
+        self.image = Destroy.image
+        self.rect = self.image.get_rect()
+        if trigger_death == 1:
+            self.rect.x = x_pos
+            self.rect.y = y_pos
+            list_time_of_delete.append(5)
+        elif trigger_death == 2:
+            self.rect.x = x_lazer_delete
+            self.rect.y = y_lazer_dalete - 90
+            list_time_of_delete.append(3)
+        trigger_death = 0
+
+    def update(self):
+        pygame.sprite.spritecollide(self, boom_group, True)
+        del list_time_of_delete[j]
+
+
+boom_group = pygame.sprite.Group()
 vertical_borders = pygame.sprite.Group()
 horizontal_borders = pygame.sprite.Group()
 glavniy_weapon_group = pygame.sprite.Group()
@@ -231,7 +275,6 @@ start_screen()
 
 running = True
 while running:
-
     if enemy_left_group.sprites() == []:
         choos = random.randint(0, 2)
         if choos != repeat:
@@ -330,8 +373,10 @@ while running:
         colding += 1
     x_pos += v_x / FPS
     y_pos += v_y / FPS
+
     if enemy_left_group.sprites() != [] and choos == 1:
         enemy_left_group.update()
+
     if enemy_left_group.sprites() != [] and reload_2_red % 250 == 0:
         for sprit in range(len(enemy_left_group.sprites())):
             x_enemy = enemy_left_group.sprites()[sprit].rect[0]
@@ -354,6 +399,13 @@ while running:
     reload_2_red += 1
     player_group.update(x_pos, y_pos)
     glavniy_weapon_group.update()
+    if list_time_of_delete != []:
+        for j in range(len(list_time_of_delete)):
+            list_time_of_delete[j] = list_time_of_delete[j] - 0.3
+            if list_time_of_delete[j] <= 0:
+                boom_group.update()
+
+    boom_group.draw(screen)
     enemy_weapon_group.draw(screen)
     enemy_left_group.draw(screen)
     vertical_borders.draw(screen)
